@@ -71,9 +71,9 @@ class DreamerLearner:
         self.init_optimizers()
         self.n_agents = 2
         Path(config.LOG_FOLDER).mkdir(parents=True, exist_ok=True)
-        #global wandb
-        #import wandb
-        #wandb.init(project="starcraft_3s_4z", dir=config.LOG_FOLDER)
+        global wandb
+        import wandb
+        wandb.init(project="starcraft_3s_4z", dir=config.LOG_FOLDER)
 
     def init_optimizers(self):
         self.model_optimizer = torch.optim.Adam(self.model.parameters(), lr=self.config.MODEL_LR)

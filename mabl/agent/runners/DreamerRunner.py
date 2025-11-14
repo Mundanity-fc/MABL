@@ -1,5 +1,5 @@
 #import ray
-#import wandb
+import wandb
 #wandb.login(key = [85a593faec6432f3c0804364fdd9006072f160c1])
 from agent.workers.DreamerWorker import DreamerWorker
 import numpy as np, random
@@ -62,7 +62,7 @@ class DreamerRunner:
             self.learner.step(rollout)
             cur_steps += info["steps_done"]
             cur_episode += 1
-            #wandb.log({'reward': info["reward"], 'steps': cur_steps})
+            wandb.log({'reward': info["reward"], 'steps': cur_steps})
             stats.append(info["reward"])
             if(len(stats)%1==0):
               np.save('mamba_rew', np.array(stats))
