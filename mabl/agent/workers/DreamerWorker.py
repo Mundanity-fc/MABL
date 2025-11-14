@@ -107,8 +107,8 @@ class DreamerWorker:
             # 步进
             next_state, next_global_state, reward, done, info = self.env.step([action.argmax() for i, action in enumerate(actions)])
             # 张量化
-            next_state, next_global_state, reward, done = self._wrap(deepcopy(next_state)), torch.tensor(deepcopy(next_global_state)).float(), \
-            # 更新终止标记                                                                         self._wrap(deepcopy(reward)), self._wrap(deepcopy(done))
+            next_state, next_global_state, reward, done = self._wrap(deepcopy(next_state)), torch.tensor(deepcopy(next_global_state)).float(), self._wrap(deepcopy(reward)), self._wrap(deepcopy(done))
+            # 更新终止标记
             self.done = done
             # 更新 buffer
             self.controller.update_buffer({"action": actions,
