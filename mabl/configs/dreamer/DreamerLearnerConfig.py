@@ -19,7 +19,7 @@ class DreamerLearnerConfig(DreamerConfig):
         self.SEQ_LENGTH = 20
         self.N_SAMPLES = 1
         self.TARGET_UPDATE = 1
-        self.DEVICE = 'cpu'
+        self.DEVICE = 'cuda:1'
         self.GRAD_CLIP = 100.0
         self.HORIZON = 15
         self.ENTROPY = 0.001
