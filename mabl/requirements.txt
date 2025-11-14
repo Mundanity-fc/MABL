@@ -3,6 +3,6 @@ torch~=1.7.0
 SMAC~=1.0.0
 wandb~=0.10.21
 argparse~=1.4.0
+tox==3.28.0
 flatland-rl~=2.2.2
-tox<4.0
 protobuf~=3.20
