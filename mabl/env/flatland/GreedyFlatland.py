@@ -58,6 +58,6 @@ class GreedyFlatland():
     def transform_action(self, handle, action):
         return self.env.transform_action(handle, action)
 
-    def get_state(self):
+#    def get_state(self):
         # TODO
         # add state return
