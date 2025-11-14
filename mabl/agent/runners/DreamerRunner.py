@@ -57,6 +57,7 @@ class DreamerRunner:
         cur_steps, cur_episode = 0, 0
         stats = []
         while True:
+            # 由 worker 返回 rollout 与 info{runner_handle, reward, steps_done}
             rollout, info = self.worker.run(self.learner.model, self.learner.actor)
             self.learner.step(rollout)
             cur_steps += info["steps_done"]

@@ -93,19 +93,24 @@ class DreamerWorker:
 
     def run(self, model, actor):
         #self.controller.receive_params(dreamer_params)
-
+        # 获取初态
         state = self._wrap(self.env.reset())
+        # 获取全局状态
         global_state = torch.tensor(self.env.get_state()).float()
         steps_done = 0
         self.done = defaultdict(lambda: False)
 
         while True:
             steps_done += 1
+            # 动作选取
             actions, obs, fakes, av_actions = self._select_actions(state, model, actor)
+            # 步进
             next_state, next_global_state, reward, done, info = self.env.step([action.argmax() for i, action in enumerate(actions)])
+            # 张量化
             next_state, next_global_state, reward, done = self._wrap(deepcopy(next_state)), torch.tensor(deepcopy(next_global_state)).float(), \
-                                                                                            self._wrap(deepcopy(reward)), self._wrap(deepcopy(done))
+            # 更新终止标记                                                                         self._wrap(deepcopy(reward)), self._wrap(deepcopy(done))
             self.done = done
+            # 更新 buffer
             self.controller.update_buffer({"action": actions,
                                            "observation": obs,
                                            "global_state": global_state,
@@ -113,12 +118,15 @@ class DreamerWorker:
                                            "done": self.augment(done),
                                            "fake": fakes,
                                            "avail_action": av_actions})
-
+            # 状态切换
             state = next_state
             global_state = next_global_state
+            # 所有智能体都 done
             if all([done[key] == 1 for key in range(self.env.n_agents)]):
+                #
                 if self._check_termination(info, steps_done):
                     obs = torch.cat([self.get_absorbing_state() for i in range(self.env.n_agents)]).unsqueeze(0)
+                    # 吸收全局状态？
                     global_state = self.get_absorbing_global_state()
                     actions = torch.zeros(1, self.env.n_agents, actions.shape[-1])
                     index = torch.randint(0, actions.shape[-1], actions.shape[:-1], device=actions.device)
@@ -130,6 +138,7 @@ class DreamerWorker:
                              "fake": torch.ones(1, self.env.n_agents, 1),
                              "done": torch.ones(1, self.env.n_agents, 1),
                              "avail_action": torch.ones_like(actions) if self.env_type == Env.STARCRAFT else None}
+                    # ?插入两次buffer？
                     self.controller.update_buffer(items)
                     self.controller.update_buffer(items)
                 break
@@ -139,6 +148,7 @@ class DreamerWorker:
                 [1 for agent in self.env.agents if agent.status == RailAgentStatus.DONE_REMOVED]) / self.env.n_agents
         else:
             reward = 1. if 'battle_won' in info and info['battle_won'] else 0.
+        # 返回两组数据，第一组为dispatch_buffer()的返回值，第二组为 {runner_handle, reward, steps_done} 的组合
         return self.controller.dispatch_buffer(), {"idx": self.runner_handle,
                                                    "reward": reward,
                                                    "steps_done": steps_done}
